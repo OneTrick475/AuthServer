@@ -14,8 +14,12 @@ public class Password {
         encryptedPassword = null;
     }
 
-    Password(String password) {
-        encryptedPassword = encrypt(password);
+    Password(String password, boolean encrypted) {
+        if (!encrypted) {
+            encryptedPassword = encrypt(password);
+        } else {
+            encryptedPassword = password;
+        }
     }
 
     private String encrypt(String password) {
