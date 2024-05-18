@@ -2,18 +2,25 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 public class Session {
-    static int idCounter = 0;
+    private static int idCounter = 0;
 
-    int id;
+    private int id;
 
-    final int secondsToLive = 60;
+    private final int secondsToLive = 60;
 
-    Date created;
+    private Date created;
 
-    Session() {
+    public String getUsername() {
+        return username;
+    }
+
+    private String username;
+
+    Session(String username) {
         id = idCounter;
         idCounter++;
         created = new Date();
+        this.username= username;
     }
     public int getId() {
         return id;

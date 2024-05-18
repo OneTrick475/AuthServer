@@ -8,7 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 public class Password {
-    String encryptedPassword;
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    private String encryptedPassword;
 
     Password() {
         encryptedPassword = null;

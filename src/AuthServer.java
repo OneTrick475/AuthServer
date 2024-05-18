@@ -52,6 +52,7 @@ public class AuthServer {
                         String response = commandHandler.execute(buffer.toString());
                         buffer.clear();
                         buffer.put(response.getBytes());
+                        buffer.flip();
 
                         sc.write(buffer);
 
