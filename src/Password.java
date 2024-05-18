@@ -1,5 +1,6 @@
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.DigestInputStream;
@@ -7,11 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-public class Password {
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
+public class Password implements Serializable {
     private String encryptedPassword;
 
     Password() {
@@ -24,6 +21,10 @@ public class Password {
         } else {
             encryptedPassword = password;
         }
+    }
+
+    public String getEncryptedPassword() {
+        return encryptedPassword;
     }
 
     private String encrypt(String password) {

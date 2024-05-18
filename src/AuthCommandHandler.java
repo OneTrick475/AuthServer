@@ -1,11 +1,32 @@
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AuthCommandHandler implements CommandHandler {
+    private static String usersFile = System.getProperty("user.dir") + "\\users.txt";
 
     Map<String, User> users = new HashMap<>();
     Map<String, Session> sessionsForUser = new HashMap<>();
     Map<Integer, Session> sessions = new HashMap<>();
+
+    public AuthCommandHandler() {
+        List<User> usersList = User.readUsersFromFile(usersFile);
+
+        for (User user : usersList) {
+            users.put(user.getUsername(), user);
+        }
+    }
+
+    public AuthCommandHandler(String usersFile) {
+        AuthCommandHandler.usersFile = usersFile;
+
+        List<User> usersList = User.readUsersFromFile(usersFile);
+
+        for (User user : usersList) {
+            users.put(user.getUsername(), user);
+        }
+    }
 
     public String register(String[] paramList) {
         if (paramList.length != 11 || !paramList[1].equals("--username") || !paramList[3].equals("--password") ||
@@ -22,13 +43,13 @@ public class AuthCommandHandler implements CommandHandler {
 
         users.put(user.getUsername(), user);
 
-        return login(new String[]{user.getUsername(), paramList[4]});
+        return login(new String[]{"", "--username", user.getUsername(), "--password", paramList[4]});
     }
 
     private String login(String[] paramList) {
         if (paramList[1].equals("--session-id")) {
             return "";
-        } else if (paramList[1].equals("--username") && paramList[2].equals("--password")) {
+        } else if (paramList[1].equals("--username") && paramList[3].equals("--password")) {
             Session session = new Session(paramList[2]);
 
             sessionsForUser.put(paramList[2], session);
@@ -230,6 +251,8 @@ public class AuthCommandHandler implements CommandHandler {
             return deleteUser(paramList);
         }
 
-        return "Invalid Command";
+        User.writeUsersToFile(usersFile, (List<User>) users.values());
+
+        return "invalid command";
     }
 }

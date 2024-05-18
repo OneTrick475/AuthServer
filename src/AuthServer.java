@@ -49,7 +49,10 @@ public class AuthServer {
                             continue;
                         }
                         buffer.flip();
-                        String response = commandHandler.execute(buffer.toString());
+                        byte[] byteArray = new byte[buffer.remaining()];
+                        buffer.get(byteArray);
+                        String reply = new String(byteArray, "UTF-8");
+                        String response = commandHandler.execute(reply);
                         buffer.clear();
                         buffer.put(response.getBytes());
                         buffer.flip();

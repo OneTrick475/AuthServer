@@ -1,8 +1,27 @@
-public class User {
+import java.io.*;
+import java.nio.file.Path;
+import java.util.List;
+
+public class User implements Serializable {
     private String username;
     private String firstName;
     private String lastName;
     private String email;
+    private Password password;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password=" + password +
+                ", isAdmin=" + isAdmin +
+                '}';
+    }
+
+    private boolean isAdmin = false;
 
     public void setUsername(String username) {
         this.username = username;
@@ -24,13 +43,10 @@ public class User {
         this.password = password;
     }
 
-    private Password password;
-
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
 
-    private boolean isAdmin = false;
 
     public User(String username, String firstName, String lastName, String email, Password password) {
         this.username = username;
@@ -62,5 +78,25 @@ public class User {
 
     public boolean isAdmin() {
         return isAdmin;
+    }
+
+    public static void writeUsersToFile(String path, List<User> users) {
+        try (FileOutputStream fileOut = new FileOutputStream(path);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(users);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    public static List<User> readUsersFromFile(String path) {
+        List<User> users = null;
+        try (FileInputStream fileIn = new FileInputStream(path);
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            users = (List<User>) in.readObject();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
+        return users;
     }
 }
