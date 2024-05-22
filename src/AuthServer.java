@@ -41,6 +41,8 @@ public class AuthServer {
                     if (key.isReadable()) {
                         SocketChannel sc = (SocketChannel) key.channel();
 
+                        String ip = sc.getRemoteAddress().toString();
+
                         buffer.clear();
                         int r = sc.read(buffer);
                         if (r < 0) {
@@ -51,8 +53,8 @@ public class AuthServer {
                         buffer.flip();
                         byte[] byteArray = new byte[buffer.remaining()];
                         buffer.get(byteArray);
-                        String reply = new String(byteArray, "UTF-8");
-                        String response = commandHandler.execute(reply);
+                        String command = new String(byteArray, "UTF-8");
+                        String response = commandHandler.execute(command, ip);
                         buffer.clear();
                         buffer.put(response.getBytes());
                         buffer.flip();

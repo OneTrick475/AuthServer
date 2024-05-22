@@ -10,8 +10,12 @@ public class AuthCommandHandler implements CommandHandler {
     Map<String, Session> sessionsForUser = new HashMap<>();
     Map<Integer, Session> sessions = new HashMap<>();
 
+    Logger logger;
+
     public AuthCommandHandler() {
         List<User> usersList = User.readUsersFromFile(usersFile);
+
+        logger = new AuthLogger()
 
         for (User user : usersList) {
             users.put(user.getUsername(), user);
@@ -43,13 +47,19 @@ public class AuthCommandHandler implements CommandHandler {
 
         users.put(user.getUsername(), user);
 
-        return login(new String[]{"", "--username", user.getUsername(), "--password", paramList[4]});
+        return login(new String[]{"", "--username", user.getUsername(), "--password", paramList[4]}, "");
     }
 
-    private String login(String[] paramList) {
+    private String login(String[] paramList, String ip) {
         if (paramList[1].equals("--session-id")) {
             return "";
         } else if (paramList[1].equals("--username") && paramList[3].equals("--password")) {
+            if (!users.get(paramList[2]).getPassword().getEncryptedPassword().
+                    equals(new Password(paramList[4], false).getEncryptedPassword())) {
+                logger.logFailedLogin(paramList[2], ip);
+                return "wrong password";
+            }
+
             Session session = new Session(paramList[2]);
 
             sessionsForUser.put(paramList[2], session);
@@ -89,7 +99,7 @@ public class AuthCommandHandler implements CommandHandler {
         return "deleted user: " + paramList[4];
     }
 
-    private String removeAdminUser(String[] paramList) {
+    private String removeAdminUser(String[] paramList, String ip) {
         if (paramList.length != 5 || !paramList[1].equals("--session-id") || !paramList[3].equals("--username")) {
             return "invalid parameters";
         }
@@ -106,6 +116,9 @@ public class AuthCommandHandler implements CommandHandler {
         Session session = sessions.get(Integer.parseInt(paramList[2]));
 
         if (!users.get(session.getUsername()).isAdmin()) {
+            logger.logAdminOperation("Remove Admin", session.getUsername(), ip,
+                    "remove admin from " + paramList[4],
+                    "failed because the user making the change is not admin");
             return "user must be admin";
         }
 
@@ -118,7 +131,7 @@ public class AuthCommandHandler implements CommandHandler {
         return "removed admin: " + paramList[4];
     }
 
-    private String addAdminUser(String[] paramList) {
+    private String addAdminUser(String[] paramList, String ip) {
         if (paramList.length != 5 || !paramList[1].equals("--session-id") || !paramList[3].equals("--username")) {
             return "invalid parameters";
         }
@@ -230,13 +243,13 @@ public class AuthCommandHandler implements CommandHandler {
     }
 
     @Override
-    public String execute(String params) {
+    public String execute(String params, String ip) {
         String[] paramList = params.split(" ");
 
         if (paramList[0].equals("register")) {
             return register(paramList);
         } else if (paramList[0].equals("login")) {
-            return login(paramList);
+            return login(paramList, ip);
         } else if (paramList[0].equals("logout")) {
             return logout(paramList);
         } else if (paramList[0].equals("update-user")) {
@@ -244,9 +257,9 @@ public class AuthCommandHandler implements CommandHandler {
         } else if (paramList[0].equals("reset-password")) {
             return resetPassword(paramList);
         } else if (paramList[0].equals("add-admin-user")) {
-            return addAdminUser(paramList);
+            return addAdminUser(paramList, ip);
         } else if (paramList[0].equals("remove-admin-user")) {
-            return removeAdminUser(paramList);
+            return removeAdminUser(paramList, ip);
         } else if (paramList[0].equals("delete-user")) {
             return deleteUser(paramList);
         }
