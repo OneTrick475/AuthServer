@@ -1,4 +1,4 @@
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,11 +6,17 @@ import java.util.List;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+        String fileName = System.getProperty("user.dir") + "\\users.txt";
 
-        List<User> users2 = User.readUsersFromFile(System.getProperty("user.dir") + "\\users.txt");
+        List<User> users = new ArrayList<>();
+        users.add(new User("a", "sad", "aedga", "asgfas", new Password("asfdas", false)));
 
-        for ( var user : users2) {
-            System.out.println(user);
+        try (FileOutputStream fileOut = new FileOutputStream(fileName);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(users);
+            System.out.println("Users have been serialized to " + fileName);
+        } catch (IOException i) {
+            i.printStackTrace();
         }
     }
 }

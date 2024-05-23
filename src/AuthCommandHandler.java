@@ -46,6 +46,10 @@ public class AuthCommandHandler implements CommandHandler {
         if (paramList[1].equals("--session-id")) {
             return "";
         } else if (paramList[1].equals("--username") && paramList[3].equals("--password")) {
+            if(!users.containsKey(paramList[2])) {
+                return "user doesnt exist";
+            }
+
             if (!users.get(paramList[2]).getPassword().getEncryptedPassword().
                     equals(new Password(paramList[4], false).getEncryptedPassword())) {
                 logger.logFailedLogin(paramList[2], ip);

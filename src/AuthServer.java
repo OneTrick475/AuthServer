@@ -20,13 +20,15 @@ public class AuthServer {
 
     private static String changesLogs = System.getProperty("user.dir") + "\\changes.txt";
 
+    private static void setupFiles() {
+
+    }
+
     private static CommandHandler setupCommandHandler() {
         List<User> users;
-        try {
-            FileInputStream usersInput = new FileInputStream(usersFile);
-
+        try (FileInputStream usersInput = new FileInputStream(usersFile)){
             users = User.readUsersFromFile(usersInput);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
