@@ -2,6 +2,8 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 
+import static java.io.FileDescriptor.out;
+
 public class User implements Serializable {
     private String username;
     private String firstName;
@@ -47,7 +49,6 @@ public class User implements Serializable {
         isAdmin = admin;
     }
 
-
     public User(String username, String firstName, String lastName, String email, Password password) {
         this.username = username;
         this.firstName = firstName;
@@ -80,22 +81,23 @@ public class User implements Serializable {
         return isAdmin;
     }
 
-    public static void writeUsersToFile(String path, List<User> users) {
-        try (FileOutputStream fileOut = new FileOutputStream(path);
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+    public static void writeUsersToFile(OutputStream outputStream, List<User> users) {
+        try (ObjectOutputStream out = new ObjectOutputStream(outputStream)) {
             out.writeObject(users);
-        } catch (IOException i) {
-            i.printStackTrace();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public static List<User> readUsersFromFile(String path) {
+    public static List<User> readUsersFromFile(InputStream inputStream) {
         List<User> users = null;
-        try (FileInputStream fileIn = new FileInputStream(path);
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+        try (ObjectInputStream in = new ObjectInputStream(inputStream)) {
             users = (List<User>) in.readObject();
-        } catch (IOException | ClassNotFoundException i) {
-            i.printStackTrace();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return users;
     }

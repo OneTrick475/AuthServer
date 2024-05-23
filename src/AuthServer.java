@@ -1,4 +1,4 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -6,12 +6,41 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class AuthServer {
     public static final int SERVER_PORT = 7777;
     private static final String SERVER_HOST = "localhost";
     private static final int BUFFER_SIZE = 1024;
+
+    private static String usersFile = System.getProperty("user.dir") + "\\users.txt";
+
+    private static String loginLogs = System.getProperty("user.dir") + "\\logins.txt";
+
+    private static String changesLogs = System.getProperty("user.dir") + "\\changes.txt";
+
+    private static CommandHandler setupCommandHandler() {
+        List<User> users;
+        try {
+            FileInputStream usersInput = new FileInputStream(usersFile);
+
+            users = User.readUsersFromFile(usersInput);
+        } catch (FileNotFoundException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        try {
+            FileOutputStream usersOutput = new FileOutputStream(usersFile);
+            FileOutputStream loginsOutput = new FileOutputStream(loginLogs);
+            FileOutputStream changesOutput = new FileOutputStream(changesLogs);
+
+            Logger logger = new AuthLogger(loginsOutput, changesOutput);
+            return new AuthCommandHandler(users, usersOutput, logger);
+        } catch (FileNotFoundException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public static void main(String[] args) {
         try (ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) {
@@ -24,7 +53,7 @@ public class AuthServer {
 
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-            CommandHandler commandHandler = new AuthCommandHandler();
+            CommandHandler commandHandler = setupCommandHandler();
 
             while (true) {
                 int readyChannels = selector.select();
@@ -78,3 +107,4 @@ public class AuthServer {
         }
     }
 }
+

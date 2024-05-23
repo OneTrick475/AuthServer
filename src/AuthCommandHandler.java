@@ -1,31 +1,23 @@
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AuthCommandHandler implements CommandHandler {
-    private static String usersFile = System.getProperty("user.dir") + "\\users.txt";
-
+    OutputStream usersOutput;
     Map<String, User> users = new HashMap<>();
     Map<String, Session> sessionsForUser = new HashMap<>();
     Map<Integer, Session> sessions = new HashMap<>();
 
     Logger logger;
 
-    public AuthCommandHandler() {
-        List<User> usersList = User.readUsersFromFile(usersFile);
+    public AuthCommandHandler(List<User> usersList, OutputStream usersOutput, Logger logger) {
+        this.logger = logger;
 
-        logger = new AuthLogger()
-
-        for (User user : usersList) {
-            users.put(user.getUsername(), user);
-        }
-    }
-
-    public AuthCommandHandler(String usersFile) {
-        AuthCommandHandler.usersFile = usersFile;
-
-        List<User> usersList = User.readUsersFromFile(usersFile);
+        this.usersOutput = usersOutput;
 
         for (User user : usersList) {
             users.put(user.getUsername(), user);
@@ -128,6 +120,10 @@ public class AuthCommandHandler implements CommandHandler {
 
         users.get(paramList[4]).setAdmin(false);
 
+        logger.logAdminOperation("Remove Admin", session.getUsername(), ip,
+                "remove admin from " + paramList[4],
+                "success");
+
         return "removed admin: " + paramList[4];
     }
 
@@ -148,14 +144,21 @@ public class AuthCommandHandler implements CommandHandler {
         Session session = sessions.get(Integer.parseInt(paramList[2]));
 
         if (!users.get(session.getUsername()).isAdmin()) {
+            logger.logAdminOperation("Make admin", session.getUsername(), ip,
+                    "make admin " + paramList[4],
+                    "failed because the user making the change is not admin");
             return "user must be admin";
         }
 
         if (users.get(paramList[4]).isAdmin()) {
-            return "user is already";
+            return "user is already admin";
         }
 
         users.get(paramList[4]).setAdmin(true);
+
+        logger.logAdminOperation("Make admin", session.getUsername(), ip,
+                "make admin " + paramList[4],
+                "success");
 
         return "added admin: " + paramList[4];
     }
@@ -264,7 +267,7 @@ public class AuthCommandHandler implements CommandHandler {
             return deleteUser(paramList);
         }
 
-        User.writeUsersToFile(usersFile, (List<User>) users.values());
+        User.writeUsersToFile(usersOutput, (List<User>) users.values());
 
         return "invalid command";
     }

@@ -1,15 +1,16 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.sql.Timestamp;
 
 public class AuthLogger implements Logger {
-    FileOutputStream logins;
-    FileOutputStream changes;
+    OutputStream logins;
+    OutputStream changes;
 
     private static int idCounter = 0;
 
-    AuthLogger(FileOutputStream logins, FileOutputStream changes) {
+    AuthLogger(OutputStream logins, OutputStream changes) {
         this.logins = logins;
         this.changes = changes;
     }
