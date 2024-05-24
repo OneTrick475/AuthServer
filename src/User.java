@@ -80,25 +80,4 @@ public class User implements Serializable {
     public boolean isAdmin() {
         return isAdmin;
     }
-
-    public static void writeUsersToFile(OutputStream outputStream, List<User> users) {
-        try (ObjectOutputStream out = new ObjectOutputStream(outputStream)) {
-            out.writeObject(users);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static List<User> readUsersFromFile(InputStream inputStream) {
-        List<User> users = null;
-        try (ObjectInputStream in = new ObjectInputStream(inputStream)) {
-            users = (List<User>) in.readObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return users;
-    }
 }

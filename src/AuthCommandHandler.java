@@ -1,26 +1,32 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AuthCommandHandler implements CommandHandler {
-    OutputStream usersOutput;
+    String usersFile;
     Map<String, User> users = new HashMap<>();
     Map<String, Session> sessionsForUser = new HashMap<>();
     Map<Integer, Session> sessions = new HashMap<>();
-
     Logger logger;
 
-    public AuthCommandHandler(List<User> usersList, OutputStream usersOutput, Logger logger) {
+    private static int adminCount = 0;
+
+    public AuthCommandHandler(String usersFile, Logger logger) {
         this.logger = logger;
+        this.usersFile = usersFile;
 
-        this.usersOutput = usersOutput;
+        List<User> usersList;
 
-        for (User user : usersList) {
-            users.put(user.getUsername(), user);
+        usersList = readUsersFromFile(usersFile);
+
+        if (usersList != null) {
+            for (User user : usersList) {
+                users.put(user.getUsername(), user);
+                if (user.isAdmin()) {
+                    adminCount++;
+                }
+            }
         }
     }
 
@@ -37,16 +43,22 @@ public class AuthCommandHandler implements CommandHandler {
         User user = new User(paramList[2], paramList[6], paramList[8], paramList[10],
                 new Password(paramList[4], false));
 
+        if (users.keySet().isEmpty()) {
+            user.setAdmin(true);
+        }
+
         users.put(user.getUsername(), user);
+
+        writeUsersToFile(usersFile, users.values().stream().toList());
 
         return login(new String[]{"", "--username", user.getUsername(), "--password", paramList[4]}, "");
     }
 
     private String login(String[] paramList, String ip) {
-        if (paramList[1].equals("--session-id")) {
+        if (paramList.length == 2 && paramList[1].equals("--session-id")) {
             return "";
-        } else if (paramList[1].equals("--username") && paramList[3].equals("--password")) {
-            if(!users.containsKey(paramList[2])) {
+        } else if (paramList.length == 5 && paramList[1].equals("--username") && paramList[3].equals("--password")) {
+            if (!users.containsKey(paramList[2])) {
                 return "user doesnt exist";
             }
 
@@ -92,6 +104,8 @@ public class AuthCommandHandler implements CommandHandler {
         sessions.remove(sessionsForUser.get(paramList[4]).getId());
         sessionsForUser.remove(paramList[4]);
 
+        writeUsersToFile(usersFile, users.values().stream().toList());
+
         return "deleted user: " + paramList[4];
     }
 
@@ -122,11 +136,20 @@ public class AuthCommandHandler implements CommandHandler {
             return "user is already not admin";
         }
 
+        if (adminCount == 1) {
+            logger.logAdminOperation("Remove Admin", session.getUsername(), ip,
+                    "remove admin from " + paramList[4],
+                    "user is the only admin, operation denied");
+            return "user is the only admin, operation denied";
+        }
+
         users.get(paramList[4]).setAdmin(false);
 
         logger.logAdminOperation("Remove Admin", session.getUsername(), ip,
                 "remove admin from " + paramList[4],
                 "success");
+
+        writeUsersToFile(usersFile, users.values().stream().toList());
 
         return "removed admin: " + paramList[4];
     }
@@ -164,6 +187,8 @@ public class AuthCommandHandler implements CommandHandler {
                 "make admin " + paramList[4],
                 "success");
 
+        writeUsersToFile(usersFile, users.values().stream().toList());
+
         return "added admin: " + paramList[4];
     }
 
@@ -191,6 +216,8 @@ public class AuthCommandHandler implements CommandHandler {
         }
 
         users.get(paramList[4]).setPassword(new Password(paramList[8], false));
+
+        writeUsersToFile(usersFile, users.values().stream().toList());
 
         return "changed password";
     }
@@ -231,6 +258,8 @@ public class AuthCommandHandler implements CommandHandler {
                     break;
             }
         }
+        writeUsersToFile(usersFile, users.values().stream().toList());
+
         return "user info updated";
     }
 
@@ -271,8 +300,28 @@ public class AuthCommandHandler implements CommandHandler {
             return deleteUser(paramList);
         }
 
-        User.writeUsersToFile(usersOutput, (List<User>) users.values());
-
         return "invalid command";
+    }
+
+    private static void writeUsersToFile(String path, List<User> users) {
+        try (FileOutputStream fileOut = new FileOutputStream(path);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(users);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static List<User> readUsersFromFile(String path) {
+        List<User> users = null;
+        try (FileInputStream fileIn = new FileInputStream(path);
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            users = (List<User>) in.readObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
     }
 }

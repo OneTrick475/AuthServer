@@ -21,26 +21,11 @@ public class AuthServer {
     private static String changesLogs = System.getProperty("user.dir") + "\\changes.txt";
 
     private static void setupFiles() {
-
-    }
-
-    private static CommandHandler setupCommandHandler() {
-        List<User> users;
-        try (FileInputStream usersInput = new FileInputStream(usersFile)){
-            users = User.readUsersFromFile(usersInput);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        try {
-            FileOutputStream usersOutput = new FileOutputStream(usersFile);
-            FileOutputStream loginsOutput = new FileOutputStream(loginLogs);
-            FileOutputStream changesOutput = new FileOutputStream(changesLogs);
-
-            Logger logger = new AuthLogger(loginsOutput, changesOutput);
-            return new AuthCommandHandler(users, usersOutput, logger);
-        } catch (FileNotFoundException e) {
-            throw new UncheckedIOException(e);
+        try (FileOutputStream fileOut = new FileOutputStream(usersFile);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(null);
+        } catch (IOException i) {
+            i.printStackTrace();
         }
     }
 
@@ -55,7 +40,26 @@ public class AuthServer {
 
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-            CommandHandler commandHandler = setupCommandHandler();
+            CommandHandler commandHandler;
+
+            File file = new File(usersFile);
+            if (!file.exists()){
+                setupFiles();
+            }
+
+            FileOutputStream loginsOutput;
+            FileOutputStream changesOutput;
+
+            try {
+                loginsOutput = new FileOutputStream(loginLogs, true);
+                changesOutput = new FileOutputStream(changesLogs, true);
+
+                Logger logger = new AuthLogger(loginsOutput, changesOutput);
+
+                commandHandler = new AuthCommandHandler(usersFile, logger);
+            } catch (FileNotFoundException e) {
+                throw new UncheckedIOException(e);
+            }
 
             while (true) {
                 int readyChannels = selector.select();
