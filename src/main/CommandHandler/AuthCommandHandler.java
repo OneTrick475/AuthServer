@@ -108,8 +108,10 @@ public class AuthCommandHandler implements CommandHandler {
         }
 
         users.remove(paramList[4]);
-        sessions.remove(sessionsForUser.get(paramList[4]).getId());
-        sessionsForUser.remove(paramList[4]);
+        if (sessionsForUser.containsKey(paramList[4])) {
+            sessions.remove(sessionsForUser.get(paramList[4]).getId());
+            sessionsForUser.remove(paramList[4]);
+        }
 
         writeUsersToFile(usersFile, users.values().stream().toList());
 

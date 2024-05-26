@@ -2,6 +2,8 @@ package main.CommandHandler;
 
 import main.Logger.AuthLogger;
 import main.Logger.Logger;
+import main.Session.Session;
+import main.User.Password;
 import main.User.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ public class AuthCommandHandlerTest {
 
         List<User> users = new ArrayList<>();
         users.add(new User("admin", "admin", "admin",
-                "admin", new main.User.Password("admin", false)));
+                "admin", new Password("admin", false)));
 
         try (FileOutputStream fileOut = new FileOutputStream(fileName);
              ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
@@ -114,5 +116,36 @@ public class AuthCommandHandlerTest {
         assertEquals("wrong password", commandHandler.execute(params, ""));
 
         verify(logger, times(1)).logFailedLogin("admin", "");
+    }
+
+    @Test
+    public void testDeleteUser() {
+        commandHandler.users.get("admin").setAdmin(true);
+        commandHandler.users.put("idk", new User("idk", "idk", "idk",
+                        "idk", new Password("idk", false)));
+
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "delete-user --session-id " +  session.getId() + " --username idk";
+
+        commandHandler.execute(params, "");
+
+        assertFalse(commandHandler.users.containsKey("idk"));
+    }
+
+    @Test
+    public void testDeleteUserWhenDoesntExist() {
+        commandHandler.users.get("admin").setAdmin(true);
+
+        String login = "login --username admin --password admin";
+
+        String id = commandHandler.execute(login, "");
+
+        String params = "delete-user --session-id " +  id + " --username idk";
+
+        assertEquals("user to delete doesnt exist", commandHandler.execute(params, ""));
     }
 }
