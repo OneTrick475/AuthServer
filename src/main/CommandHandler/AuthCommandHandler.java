@@ -1,3 +1,10 @@
+package main.CommandHandler;
+
+import main.Logger.Logger;
+import main.Session.Session;
+import main.User.Password;
+import main.User.User;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +50,7 @@ public class AuthCommandHandler implements CommandHandler {
         User user = new User(paramList[2], paramList[6], paramList[8], paramList[10],
                 new Password(paramList[4], false));
 
-        if (users.keySet().isEmpty()) {
+        if (adminCount == 0) {
             user.setAdmin(true);
         }
 

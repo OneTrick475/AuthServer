@@ -1,3 +1,10 @@
+package main.Server;
+
+import main.CommandHandler.AuthCommandHandler;
+import main.CommandHandler.CommandHandler;
+import main.Logger.AuthLogger;
+import main.Logger.Logger;
+
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -6,7 +13,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 public class AuthServer {
@@ -81,7 +87,7 @@ public class AuthServer {
                         buffer.clear();
                         int r = sc.read(buffer);
                         if (r < 0) {
-                            System.out.println("Client has closed the connection");
+                            System.out.println("main.Client.main.Client has closed the connection");
                             sc.close();
                             continue;
                         }

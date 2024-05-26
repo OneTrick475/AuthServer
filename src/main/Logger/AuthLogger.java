@@ -1,4 +1,5 @@
-import java.io.FileOutputStream;
+package main.Logger;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -10,7 +11,7 @@ public class AuthLogger implements Logger {
 
     private static int idCounter = 0;
 
-    AuthLogger(OutputStream logins, OutputStream changes) {
+    public AuthLogger(OutputStream logins, OutputStream changes) {
         this.logins = logins;
         this.changes = changes;
     }

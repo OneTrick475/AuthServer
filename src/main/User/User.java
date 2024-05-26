@@ -1,8 +1,6 @@
-import java.io.*;
-import java.nio.file.Path;
-import java.util.List;
+package main.User;
 
-import static java.io.FileDescriptor.out;
+import java.io.*;
 
 public class User implements Serializable {
     private String username;
@@ -13,7 +11,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "main.User.main.User{" +
                 "username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

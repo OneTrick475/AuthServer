@@ -1,7 +1,8 @@
+package main.User;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -15,7 +16,7 @@ public class Password implements Serializable {
         encryptedPassword = null;
     }
 
-    Password(String password, boolean encrypted) {
+    public Password(String password, boolean encrypted) {
         if (!encrypted) {
             encryptedPassword = encrypt(password);
         } else {

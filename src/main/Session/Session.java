@@ -1,4 +1,5 @@
-import java.sql.Timestamp;
+package main.Session;
+
 import java.util.Date;
 
 public class Session {
@@ -16,7 +17,7 @@ public class Session {
 
     private String username;
 
-    Session(String username) {
+    public Session(String username) {
         id = idCounter;
         idCounter++;
         created = new Date();
