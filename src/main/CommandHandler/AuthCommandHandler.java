@@ -17,7 +17,7 @@ public class AuthCommandHandler implements CommandHandler {
     Map<Integer, Session> sessions = new HashMap<>();
     Logger logger;
 
-    private static int adminCount = 0;
+    private int adminCount = 0;
 
     public AuthCommandHandler(String usersFile, Logger logger) {
         this.logger = logger;

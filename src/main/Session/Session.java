@@ -28,6 +28,6 @@ public class Session {
     }
 
     public boolean isExpired() {
-        return (new Date().getTime()) - created.getTime() <= secondsToLive;
+        return (new Date().getTime()) - created.getTime() >= secondsToLive;
     }
 }
