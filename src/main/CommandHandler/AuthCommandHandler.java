@@ -247,7 +247,9 @@ public class AuthCommandHandler implements CommandHandler {
             switch (paramList[i]) {
                 case "--new-username":
                     if (i + 1 < paramList.length) {
+                        users.remove(user.getUsername());
                         user.setUsername(paramList[++i]);
+                        users.put(user.getUsername(), user);
                     }
                     break;
                 case "--new-first-name":

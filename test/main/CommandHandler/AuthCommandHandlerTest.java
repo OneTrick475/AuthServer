@@ -433,14 +433,17 @@ public class AuthCommandHandlerTest {
                 "idk", new Password("idk", false)));
         commandHandler.users.get("idk").setAdmin(true);
 
-        Session session = new Session("admin");
+        Session session = new Session("idk");
 
         commandHandler.sessions.put(session.getId(), session);
-        commandHandler.sessionsForUser.put("admin", session);
+        commandHandler.sessionsForUser.put("idk", session);
 
-        String params = "add-admin-user --session-id " +  session.getId() + " --username idk";
+        String params = "update-user --session-id " + session.getId()
+                + " --new-username idk2 --new-first-name idk2 --new-last-name idk2 --new-email idk2";
 
-        assertEquals("user is already admin", commandHandler.execute(params, ""));
+        commandHandler.execute(params, "");
+
+        assertTrue(commandHandler.users.containsKey("idk2"));
     }
 
 }
