@@ -248,13 +248,17 @@ public class AuthCommandHandler implements CommandHandler {
             switch (paramList[i]) {
                 case "--new-username":
                     if (i + 1 < paramList.length) {
-                        Session session =  sessionsForUser.get(user.getUsername());
-                        session.setUsername(paramList[++i]);
+                        if (users.containsKey(paramList[++i])) {
+                            return "username is taken";
+                        }
+
+                        Session session = sessionsForUser.get(user.getUsername());
+                        session.setUsername(paramList[i]);
                         sessionsForUser.remove(user.getUsername());
-                        sessionsForUser.put(paramList[++i], session);
+                        sessionsForUser.put(paramList[i], session);
 
                         users.remove(user.getUsername());
-                        user.setUsername(paramList[++i]);
+                        user.setUsername(paramList[i]);
                         users.put(user.getUsername(), user);
                     }
                     break;
