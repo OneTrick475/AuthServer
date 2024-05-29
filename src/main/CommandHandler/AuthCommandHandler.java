@@ -216,7 +216,8 @@ public class AuthCommandHandler implements CommandHandler {
             return "user doesnt exist";
         }
 
-        if (Integer.parseInt(paramList[2]) != sessionsForUser.get(paramList[4]).getId()) {
+        if (!sessionsForUser.containsKey(paramList[4]) ||
+                Integer.parseInt(paramList[2]) != sessionsForUser.get(paramList[4]).getId()) {
             return "session doesnt match user";
         }
 
@@ -247,6 +248,11 @@ public class AuthCommandHandler implements CommandHandler {
             switch (paramList[i]) {
                 case "--new-username":
                     if (i + 1 < paramList.length) {
+                        Session session =  sessionsForUser.get(user.getUsername());
+                        session.setUsername(paramList[++i]);
+                        sessionsForUser.remove(user.getUsername());
+                        sessionsForUser.put(paramList[++i], session);
+
                         users.remove(user.getUsername());
                         user.setUsername(paramList[++i]);
                         users.put(user.getUsername(), user);

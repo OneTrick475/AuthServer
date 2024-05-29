@@ -446,4 +446,76 @@ public class AuthCommandHandlerTest {
         assertTrue(commandHandler.users.containsKey("idk2"));
     }
 
+    @Test
+    public void testResetPasswordWithInvalidParameters() {
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "reset-password --session-id " + session.getId() +
+                " --username admin --oldpassword admin --new-password admin2";
+
+
+
+        assertEquals("invalid parameters",  commandHandler.execute(params, ""));
+    }
+
+    @Test
+    public void testResetPasswordWithUserDoesntExist() {
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "reset-password --session-id " + session.getId() +
+                " --username admin2 --old-password admin --new-password admin2";
+
+        assertEquals("user doesnt exist",  commandHandler.execute(params, ""));
+    }
+
+    @Test
+    public void testResetPasswordWithSessionDoesntMatchUser() {
+        commandHandler.users.put("idk", new User("idk", "idk", "idk",
+                "idk", new Password("idk", false)));
+
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "reset-password --session-id " + session.getId() +
+                " --username idk --old-password admin --new-password admin2";
+
+        assertEquals("session doesnt match user",  commandHandler.execute(params, ""));
+    }
+
+    @Test
+    public void testResetPasswordWithIncorrectPassword() {
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "reset-password --session-id " + session.getId() +
+                " --username admin --old-password admin3 --new-password admin2";
+
+        assertEquals("password isnt correct",  commandHandler.execute(params, ""));
+    }
+
+    @Test
+    public void testResetPassword() {
+        Session session = new Session("admin");
+
+        commandHandler.sessions.put(session.getId(), session);
+        commandHandler.sessionsForUser.put("admin", session);
+
+        String params = "reset-password --session-id " + session.getId() +
+                " --username admin --old-password admin --new-password admin2";
+
+        commandHandler.execute(params, "");
+
+        assertTrue(commandHandler.users.get("admin").getPassword()
+                .equals(new Password("admin2", false)));
+    }
 }

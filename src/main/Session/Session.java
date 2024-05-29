@@ -9,18 +9,22 @@ public class Session {
 
     private final int secondsToLive = 60;
 
-    private Date created;
+    private long created;
+
+    private String username;
 
     public String getUsername() {
         return username;
     }
 
-    private String username;
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public Session(String username) {
         id = idCounter;
         idCounter++;
-        created = new Date();
+        created = new Date().getTime();
         this.username= username;
     }
     public int getId() {
@@ -28,6 +32,6 @@ public class Session {
     }
 
     public boolean isExpired() {
-        return (new Date().getTime()) - created.getTime() >= secondsToLive;
+        return ((new Date().getTime()) - created >= secondsToLive);
     }
 }
