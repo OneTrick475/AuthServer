@@ -329,7 +329,7 @@ public class AuthCommandHandler implements CommandHandler {
              ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(users);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("problem writing users", e);
         }
     }
 
@@ -339,9 +339,9 @@ public class AuthCommandHandler implements CommandHandler {
              ObjectInputStream in = new ObjectInputStream(fileIn)) {
             users = (List<User>) in.readObject();
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("problem reading users", e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Class of a serialized object cannot be found", e);
         }
         return users;
     }

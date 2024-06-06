@@ -64,7 +64,7 @@ public class AuthServer {
 
                 commandHandler = new AuthCommandHandler(usersFile, logger);
             } catch (FileNotFoundException e) {
-                throw new UncheckedIOException(e);
+                throw new UncheckedIOException("Audit log files not setup properly", e);
             }
 
             while (true) {
@@ -87,7 +87,7 @@ public class AuthServer {
                         buffer.clear();
                         int r = sc.read(buffer);
                         if (r < 0) {
-                            System.out.println("main.Client.main.Client has closed the connection");
+                            System.out.println("Client has closed the connection");
                             sc.close();
                             continue;
                         }

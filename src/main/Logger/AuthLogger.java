@@ -26,7 +26,7 @@ public class AuthLogger implements Logger {
             logins.write(ip.getBytes());
             logins.write("\n".getBytes());
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("There was a problem while logging", e);
         }
     }
 
@@ -59,7 +59,7 @@ public class AuthLogger implements Logger {
             changes.write(result.getBytes());
             changes.write("\n".getBytes());
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("There was a problem while logging", e);
         }
     }
 }
