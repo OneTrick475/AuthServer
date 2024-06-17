@@ -25,14 +25,12 @@ public class Client {
             System.out.println("Connected to the server.");
 
             while (true) {
-                System.out.print("Enter message: ");
+                System.out.print("Enter command: ");
                 String message = scanner.nextLine(); // read a line from the console
 
                 if ("quit".equals(message)) {
                     break;
                 }
-
-                System.out.println("Sending message <" + message + "> to the server...");
 
                 buffer.clear(); // switch to writing mode
                 buffer.put(message.getBytes()); // buffer fill
@@ -50,7 +48,7 @@ public class Client {
                 // if the buffer is a non-direct one, it has a wrapped array and we can get it
                 //String reply = new String(buffer.array(), 0, buffer.position(), "UTF-8"); // buffer drain
 
-                System.out.println("The server replied <" + reply + ">");
+                System.out.println(reply);
             }
 
         } catch (IOException e) {

@@ -7,7 +7,7 @@ public class Session {
 
     private int id;
 
-    private final int secondsToLive = 60;
+    private final int millSecondsToLive = 60000;
 
     private long created;
 
@@ -32,6 +32,6 @@ public class Session {
     }
 
     public boolean isExpired() {
-        return ((new Date().getTime()) - created >= secondsToLive);
+        return ((new Date().getTime()) - created >= millSecondsToLive);
     }
 }
